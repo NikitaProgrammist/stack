@@ -1,8 +1,16 @@
-#ifndef STACK_H
-#define STACK_H
+#ifndef PRIVATE_STACK_H
+#define PRIVATE_STACK_H
 
 typedef struct Stack Stack;
-typedef int stack_t;
+typedef double stack_t;
+
+struct Stack {
+  size_t first_canary;
+  stack_t * data;
+  size_t size;
+  size_t capacity;
+  size_t last_canary;
+};
 
 enum StackErr {
   SUCCESS,
@@ -22,4 +30,4 @@ StackErr stackDestroy(Stack * stack);
 StackErr getSize(const Stack * stack, size_t * result);
 StackErr getCapacity(const Stack * stack, size_t * result);
 
-#endif // STACK_H
+#endif // PRIVATE_STACK_H

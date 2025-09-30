@@ -1,6 +1,14 @@
 #include <stdio.h>
 
-int main() {
+#include "stack.h"
+#include "in_out.h"
 
+int main() {
+  Stack * stack = NULL;
+  StackErr error = stackInit(&stack);
+  size_t * ptr = (size_t *) stack;
+  *ptr = 0;
+  stackPush(stack, 10);
+  stackDestroy(stack);
   return 0;
 }
