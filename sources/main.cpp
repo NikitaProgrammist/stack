@@ -10,5 +10,7 @@ int main() {
   *ptr = 0;
   stackPush(stack, 10);
   stackDestroy(stack);
+  error = calcCycle();
+  errorsParser(error);
   return 0;
 }

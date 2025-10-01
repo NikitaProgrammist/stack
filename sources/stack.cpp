@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "private_stack.h"
@@ -29,14 +30,14 @@ StackErr stackPush(Stack * stack, stack_t elem) {
 
   if (stack->size >= stack->capacity) {
     stack->capacity = 2 * stack->capacity;
-    stack->data = (stack_t *) realloc(stack->data, stack->capacity);
+    stack->data = (stack_t *) realloc(stack->data, stack->capacity * sizeof(stack_t));
 
     if (!stack->data) {
       return REALLOC_FAILED;
     }
 
   }
-
+  printf("%lf %zu\n", stack->data[0], stack->size);
   stackVerify(stack);
   return SUCCESS;
 }
@@ -48,7 +49,7 @@ StackErr stackPop(Stack * stack, stack_t * elem) {
   stackVerify(stack);
 
   if (stack->size > 0) {
-    *elem = stack->data[stack->size--];
+    *elem = stack->data[--stack->size];
     stackVerify(stack);
     return SUCCESS;
   }
@@ -63,14 +64,14 @@ StackErr stackDestroy(Stack * stack) {
   return SUCCESS;
 }
 
-StackErr getSize(const Stack * stack, size_t * result) {
+StackErr stackGetSize(const Stack * stack, size_t * result) {
   stackVerify(stack);
   *result = stack->size;
   stackVerify(stack);
   return SUCCESS;
 }
 
-StackErr getCapacity(const Stack * stack, size_t * result) {
+StackErr stackGetCapacity(const Stack * stack, size_t * result) {
   stackVerify(stack);
   *result = stack->capacity;
   stackVerify(stack);

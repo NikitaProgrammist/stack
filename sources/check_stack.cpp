@@ -29,7 +29,7 @@ void dump(const Stack * stack) {
 
         for (size_t i = 0; i < max_print; i++) {
           if (i < stack->size) {
-            colorPrintf(RED, BOLD, "        *[%zu] = %zu\n", i, stack->data[i]);
+            colorPrintf(RED, BOLD, "        *[%zu] = %p\n", i, stack->data[i]);
           }
           else {
             colorPrintf(RED, BOLD, "        [%zu] = %zu (not in stack)\n", i, stack->data[i]);
