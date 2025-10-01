@@ -37,7 +37,6 @@ StackErr stackPush(Stack * stack, stack_t elem) {
     }
 
   }
-  printf("%lf %zu\n", stack->data[0], stack->size);
   stackVerify(stack);
   return SUCCESS;
 }

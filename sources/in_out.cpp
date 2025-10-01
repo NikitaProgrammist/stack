@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include <math.h>
 
@@ -21,11 +22,12 @@ StackErr calcCycle() {
       free(line);
       return err;
     }
+    printf("%lg\n", result);
 
+    result = 0;
     n = 0;
     free(line);
   }
-  printf("%lg\n", result);
   return SUCCESS;
 }
 
@@ -42,88 +44,87 @@ StackErr calculator(char * expression, stack_t * result) {
   stack_t operand = 0;
   char * startptr = expression;
   char * endptr = NULL;
-  while (true) {
-    operand = strtod(startptr, &endptr);
-    if (startptr == endptr) {
-      break;
-    }
-    startptr = endptr;
-
-    err = stackPush(operands, operand);
-    if (err != SUCCESS) {
-      stackDestroy(operands);
-      return err;
-    }
-  }
-
-  size_t index = 0;
-  stack_t operand_1 =  0, operand_2 = 0;
-  while (endptr[index] != '\0') {
-    if (endptr[index] == ' ') {
-      index++;
+  while (*startptr != '\0' && *startptr != '\n') {
+    if (*startptr == ' ') {
+      startptr++;
       continue;
     }
 
-    err = stackPop(operands, &operand_1);
-    if (err != SUCCESS) {
-      stackDestroy(operands);
-      return err;
-    }
-
-    err = stackPop(operands, &operand_2);
-    if (err != SUCCESS) {
-      stackDestroy(operands);
-      return err;
-    }
-
-    if (endptr[index] == '+') {
-      err = stackPush(operands, operand_1 + operand_2);
-      printf("%lf %lf\n", operand_1, operand_2);
-      if (err != SUCCESS) {
-        stackDestroy(operands);
-        return err;
-      }
-    }
-    else if (endptr[index] == '-') {
-      err = stackPush(operands, operand_1 - operand_2);
-      if (err != SUCCESS) {
-        stackDestroy(operands);
-        return err;
-      }
-    }
-
-    else if (endptr[index] == '*') {
-      if (endptr[index + 1] != '*') {
-        err = stackPush(operands, operand_1 * operand_2);
+    operand = strtod(startptr, &endptr);
+    if (startptr == endptr) {
+      stack_t operand_1 =  0, operand_2 = 0;
+      while (*startptr != '\0' && *startptr != '\n' && ((*startptr != '+' && !isdigit(*(startptr + 1))) || (*startptr != '-' && !isdigit(*(startptr + 1))))) {
+        err = stackPop(operands, &operand_2);
         if (err != SUCCESS) {
           stackDestroy(operands);
           return err;
         }
-      }
-      else {
-        err = stackPush(operands, pow(operand_1, operand_2));
+
+        err = stackPop(operands, &operand_1);
         if (err != SUCCESS) {
           stackDestroy(operands);
           return err;
         }
+
+        if (*startptr == '+') {
+          err = stackPush(operands, operand_1 + operand_2);
+          if (err != SUCCESS) {
+            stackDestroy(operands);
+            return err;
+          }
+        }
+        else if (*startptr == '-') {
+          err = stackPush(operands, operand_1 - operand_2);
+          if (err != SUCCESS) {
+            stackDestroy(operands);
+            return err;
+          }
+        }
+
+        else if (*startptr == '*') {
+          if (*(startptr + 1) != '*') {
+            err = stackPush(operands, operand_1 * operand_2);
+            if (err != SUCCESS) {
+              stackDestroy(operands);
+              return err;
+            }
+          }
+          else {
+            err = stackPush(operands, pow(operand_1, operand_2));
+            startptr++;
+            if (err != SUCCESS) {
+              stackDestroy(operands);
+              return err;
+            }
+          }
+        }
+
+        else if (*startptr == '/') {
+          err = stackPush(operands, operand_1 / operand_2);
+          if (err != SUCCESS) {
+            stackDestroy(operands);
+            return err;
+          }
+        }
+
+        else {
+          stackDestroy(operands);
+          return INCORRECT_EXPRESSION;
+        }
+
+        startptr++;
       }
     }
-
-    else if (endptr[index] == '/') {
-      err = stackPush(operands, operand_1 / operand_2);
-      if (err != SUCCESS) {
-        stackDestroy(operands);
-        return err;
-      }
-    }
-
     else {
-      stackDestroy(operands);
-      return INCORRECT_EXPRESSION;
+      startptr = endptr;
+      err = stackPush(operands, operand);
+      if (err != SUCCESS) {
+        stackDestroy(operands);
+        return err;
+      }
     }
-
-    index++;
   }
+
   err = stackGetSize(operands, &size);
   if (err != SUCCESS) {
     stackDestroy(operands);
@@ -139,6 +140,7 @@ StackErr calculator(char * expression, stack_t * result) {
     stackDestroy(operands);
     return err;
   }
+  stackDestroy(operands);
   return SUCCESS;
 }
 
